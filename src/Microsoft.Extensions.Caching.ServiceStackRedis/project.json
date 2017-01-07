@@ -1,6 +1,8 @@
 {
   "version": "1.0.0.1",
   "description": "Distributed cache implementation of Microsoft.Extensions.Caching.Distributed.IDistributedCache using ServiceStack.Redis.Core",
+  "projectUrl": "https://github.com/cnblogs/ServiceStackRedisCache",
+  "authors": [ "cnblogs.com" ],
   "packOptions": {
     "repository": {
       "type": "git",
@@ -21,6 +23,6 @@
     "ServiceStack.Redis.Core": "1.0.30"
   },
   "frameworks": {
-    "netstandard1.6": { }
+    "netstandard1.6": {}
   }
 }
