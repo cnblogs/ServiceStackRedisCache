@@ -2,6 +2,9 @@
 
 Distributed cache implementation of Microsoft.Extensions.Caching.Distributed.IDistributedCache using ServiceStack.Redis.Core.
 
+### Install Package
+https://www.nuget.org/packages/ServiceStackRedisCache
+
 ### Configure
 
 Startup.cs
