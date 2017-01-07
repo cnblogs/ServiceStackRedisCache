@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0.1",
+  "description": "Distributed cache implementation of Microsoft.Extensions.Caching.Distributed.IDistributedCache using ServiceStack.Redis.Core",
+  "packOptions": {
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/cnblogs/ServiceStackRedisCache"
+    },
+    "tags": [
+      "cache",
+      "redis",
+      "distributedcache"
+    ]
+  },
+  "dependencies": {
+    "Microsoft.Extensions.Caching.Abstractions": "1.1.0",
+    "Microsoft.Extensions.Configuration.Abstractions": "1.1.0",
+    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
+    "Microsoft.Extensions.Options": "1.1.0",
+    "NETStandard.Library": "1.6.1",
+    "ServiceStack.Redis.Core": "1.0.30"
+  },
+  "frameworks": {
+    "netstandard1.6": { }
+  }
+}
