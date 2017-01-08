@@ -9,9 +9,9 @@ using System.IO;
 
 namespace Microsoft.Extensions.Caching.ServiceStackRedis
 {
-    public class ServiceStackRedisCache : IDistributedCache, IDisposable
+    public class ServiceStackRedisCache : IDistributedCache
     {
-        private readonly IRedisNativeClient _cache;
+        private readonly IRedisClientsManager _redisManager;
         private readonly ServiceStackRedisCacheOptions _options;
 
         public ServiceStackRedisCache(IOptions<ServiceStackRedisCacheOptions> optionsAccessor)
@@ -24,13 +24,7 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
             _options = optionsAccessor.Value;
 
             var host = $"{_options.Password}@{_options.Host}:{_options.Port}";
-            var manager = new RedisManagerPool(host);
-            var client = manager.GetClient() as IRedisNativeClient;
-            if (client == null)
-            {
-                throw new ArgumentNullException(nameof(client));
-            }
-            _cache = client;
+            _redisManager = new RedisManagerPool(host);
         }
 
         public byte[] Get(string key)
@@ -40,11 +34,13 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
                 throw new ArgumentNullException(nameof(key));
             }
 
-            if (_cache.Exists(key) == 1)
+            using (var client = _redisManager.GetClient() as IRedisNativeClient)
             {
-                return _cache.Get(key);
+                if (client.Exists(key) == 1)
+                {
+                    return client.Get(key);
+                }
             }
-
             return null;
         }
 
@@ -70,15 +66,18 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
                 throw new ArgumentNullException(nameof(options));
             }
 
-            var expireInSeconds = GetExpireInSeconds(options);
-            if (expireInSeconds > 0)
+            using (var client = _redisManager.GetClient() as IRedisNativeClient)
             {
-                _cache.SetEx(key, expireInSeconds, value);
-                _cache.SetEx(GetExpirationKey(key), expireInSeconds, Encoding.UTF8.GetBytes(expireInSeconds.ToString()));
-            }
-            else
-            {
-                _cache.Set(key, value);
+                var expireInSeconds = GetExpireInSeconds(options);
+                if (expireInSeconds > 0)
+                {
+                    client.SetEx(key, expireInSeconds, value);
+                    client.SetEx(GetExpirationKey(key), expireInSeconds, Encoding.UTF8.GetBytes(expireInSeconds.ToString()));
+                }
+                else
+                {
+                    client.Set(key, value);
+                }
             }
         }
 
@@ -94,15 +93,18 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
                 throw new ArgumentNullException(nameof(key));
             }
 
-            if (_cache.Exists(key) == 1)
+            using (var client = _redisManager.GetClient() as IRedisNativeClient)
             {
-                var value = _cache.Get(key);
-                if (value != null)
+                if (client.Exists(key) == 1)
                 {
-                    var expirationValue = _cache.Get(GetExpirationKey(key));
-                    if (expirationValue != null)
+                    var value = client.Get(key);
+                    if (value != null)
                     {
-                        _cache.Expire(key, int.Parse(Encoding.UTF8.GetString(expirationValue)));
+                        var expirationValue = client.Get(GetExpirationKey(key));
+                        if (expirationValue != null)
+                        {
+                            client.Expire(key, int.Parse(Encoding.UTF8.GetString(expirationValue)));
+                        }
                     }
                 }
             }
@@ -125,21 +127,16 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
                 throw new ArgumentNullException(nameof(key));
             }
 
-            _cache.Del(key);
+            using (var client = _redisManager.GetClient() as IRedisNativeClient)
+            {
+                client.Del(key);
+            }
         }
 
         public async Task RemoveAsync(string key)
         {
             Remove(key);
-        }
-
-        public void Dispose()
-        {
-            if (_cache != null)
-            {
-                _cache.Dispose();
-            }
-        }
+        }  
 
         private int GetExpireInSeconds(DistributedCacheEntryOptions options)
         {

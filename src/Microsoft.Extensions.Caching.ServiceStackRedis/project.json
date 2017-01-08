@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0.1",
+  "version": "1.0.0.2",
   "name": "ServiceStackRedisCache",
   "description": "Distributed cache implementation of Microsoft.Extensions.Caching.Distributed.IDistributedCache using ServiceStack.Redis.Core",
   "projectUrl": "https://github.com/cnblogs/ServiceStackRedisCache",

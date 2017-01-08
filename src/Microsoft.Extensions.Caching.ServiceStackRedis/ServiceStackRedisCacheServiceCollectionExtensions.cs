@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddOptions();
             services.Configure(setupAction);
-            services.Add(ServiceDescriptor.Transient<IDistributedCache, ServiceStackRedisCache>());
+            services.Add(ServiceDescriptor.Singleton<IDistributedCache, ServiceStackRedisCache>());
 
             return services;
         }
