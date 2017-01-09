@@ -24,6 +24,7 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
             _options = optionsAccessor.Value;
 
             var host = $"{_options.Password}@{_options.Host}:{_options.Port}";
+            RedisConfig.VerifyMasterConnections = false;
             _redisManager = new RedisManagerPool(host);
         }
 
