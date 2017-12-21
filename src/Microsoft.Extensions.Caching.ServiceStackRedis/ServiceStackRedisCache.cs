@@ -1,11 +1,10 @@
-using System;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using ServiceStack.Redis;
-using ServiceStack.Redis.Generic;
-using System.IO;
+using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Caching.ServiceStackRedis
 {
@@ -45,9 +44,9 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
             return null;
         }
 
-        public async Task<byte[]> GetAsync(string key)
+        public Task<byte[]> GetAsync(string key, CancellationToken token = default(CancellationToken))
         {
-            return Get(key);
+            return Task.FromResult(Get(key));
         }
 
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
@@ -82,9 +81,9 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
             }
         }
 
-        public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options)
+        public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default(CancellationToken))
         {
-            Set(key, value, options);
+            return Task.Run(() => Set(key, value, options));
         }
 
         public void Refresh(string key)
@@ -111,14 +110,14 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
             }
         }
 
-        public async Task RefreshAsync(string key)
+        public Task RefreshAsync(string key, CancellationToken token = default(CancellationToken))
         {
             if (key == null)
             {
                 throw new ArgumentNullException(nameof(key));
             }
 
-            Refresh(key);
+            return Task.Run(() => Refresh(key));
         }
 
         public void Remove(string key)
@@ -134,10 +133,10 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
             }
         }
 
-        public async Task RemoveAsync(string key)
+        public Task RemoveAsync(string key, CancellationToken token = default(CancellationToken))
         {
-            Remove(key);
-        }  
+            return Task.Run(() => Remove(key));
+        }
 
         private int GetExpireInSeconds(DistributedCacheEntryOptions options)
         {
