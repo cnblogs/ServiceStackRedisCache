@@ -18,7 +18,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
-    <PackageReference Include="ServiceStack.Redis.Core" Version="1.0.44" />
+    <PackageReference Include="ServiceStack.Interfaces" Version="5.0.0" />
+    <PackageReference Include="ServiceStack.Redis" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
