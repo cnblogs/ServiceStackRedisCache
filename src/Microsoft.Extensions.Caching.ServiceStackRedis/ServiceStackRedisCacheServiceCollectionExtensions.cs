@@ -23,10 +23,18 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddOptions();
             services.Configure(setupAction);
-            services.Add(ServiceDescriptor.Singleton<IDistributedCache, ServiceStackRedisCache>());
+            services.TryAddSingleton<IDistributedCache, ServiceStackRedisCache>();
 
             return services;
         }
+
+#if NET6_0_OR_GREATER
+        public static IServiceCollection AddDistributedServiceStackRedisCache(this IServiceCollection services, string configName)
+        {
+            var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+            return services.AddDistributedServiceStackRedisCache(config.GetSection(configName));
+        }
+#endif
 
         public static IServiceCollection AddDistributedServiceStackRedisCache(this IServiceCollection services, IConfigurationSection section)
         {
@@ -41,8 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.Configure<ServiceStackRedisCacheOptions>(section);
-
-            services.Add(ServiceDescriptor.Transient<IDistributedCache, ServiceStackRedisCache>());
+            services.TryAddSingleton<IDistributedCache, ServiceStackRedisCache>();
 
             return services;
         }

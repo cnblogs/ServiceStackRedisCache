@@ -1,10 +1,14 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5A04042D-438D-407B-B239-0CAD6A2BD8C2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Extensions.Caching.ServiceStackRedis", "src\Microsoft.Extensions.Caching.ServiceStackRedis\Microsoft.Extensions.Caching.ServiceStackRedis.csproj", "{5694BC38-B266-447E-A743-DA1139FCB257}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{59F8766F-A9B2-4EE5-85AE-4D0E590EB65F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStackRedisCacheTests", "test\ServiceStackRedisCacheTests\ServiceStackRedisCacheTests.csproj", "{A7224FF5-F598-44E8-90DD-7D34EE8AC0FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,12 +20,17 @@ Global
 		{5694BC38-B266-447E-A743-DA1139FCB257}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5694BC38-B266-447E-A743-DA1139FCB257}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5694BC38-B266-447E-A743-DA1139FCB257}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7224FF5-F598-44E8-90DD-7D34EE8AC0FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7224FF5-F598-44E8-90DD-7D34EE8AC0FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7224FF5-F598-44E8-90DD-7D34EE8AC0FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7224FF5-F598-44E8-90DD-7D34EE8AC0FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5694BC38-B266-447E-A743-DA1139FCB257} = {5A04042D-438D-407B-B239-0CAD6A2BD8C2}
+		{A7224FF5-F598-44E8-90DD-7D34EE8AC0FB} = {59F8766F-A9B2-4EE5-85AE-4D0E590EB65F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {101BFF2A-6CDA-4ED7-A483-7186847DF520}
