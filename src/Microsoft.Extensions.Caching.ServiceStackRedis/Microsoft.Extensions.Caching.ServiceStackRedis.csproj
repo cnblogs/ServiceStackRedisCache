@@ -2,16 +2,13 @@
 
   <PropertyGroup>
     <Description>Distributed cache implementation of Microsoft.Extensions.Caching.Distributed.IDistributedCache using ServiceStack.Redis.Core</Description>
-    <VersionPrefix>2.0.0.1</VersionPrefix>
     <Authors>cnblogs.com</Authors>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
     <AssemblyName>ServiceStackRedisCache</AssemblyName>
-    <PackageId>Microsoft.Extensions.Caching.ServiceStackRedis</PackageId>
     <PackageTags>cache;redis;distributedcache</PackageTags>
     <PackageProjectUrl>https://github.com/cnblogs/ServiceStackRedisCache</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/cnblogs/ServiceStackRedisCache</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
