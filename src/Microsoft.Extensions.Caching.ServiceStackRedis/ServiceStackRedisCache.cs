@@ -144,7 +144,7 @@ namespace Microsoft.Extensions.Caching.ServiceStackRedis
             {
                 return (int)options.SlidingExpiration.Value.TotalSeconds;
             }
-            else if (options.AbsoluteExpiration.HasValue)
+            else if (options.AbsoluteExpirationRelativeToNow.HasValue)
             {
                 return (int)options.AbsoluteExpirationRelativeToNow.Value.TotalSeconds;
             }
