@@ -1,8 +1,11 @@
 using System;
+using System.ComponentModel;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.ServiceStackRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using ServiceStack.Redis;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -49,6 +52,14 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.Configure<ServiceStackRedisCacheOptions>(section);
+
+            services.TryAddSingleton<IRedisClientsManager>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ServiceStackRedisCacheOptions>>().Value;
+                var host = $"{options.Password}@{options.Host}:{options.Port}";
+                return new RedisManagerPool(host);
+            });
+
             services.TryAddSingleton<IDistributedCache, ServiceStackRedisCache>();
 
             return services;
