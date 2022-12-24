@@ -1,4 +1,6 @@
+using System.Formats.Tar;
 using Microsoft.Extensions.Caching.Distributed;
+using ServiceStack.Redis;
 using Xunit.Priority;
 using PriorityAttribute = Xunit.Priority.PriorityAttribute;
 
@@ -8,45 +10,103 @@ namespace ServiceStackRedisCacheTests;
 [Collection(nameof(DistributedCacheCollection))]
 public class DistributedCacheTests
 {
-    private readonly string _key = "distributed_cache";
-    private readonly string _keyAsync = "distributed_cache_async";
     private const string _value = "Coding changes the world";
-    private readonly IDistributedCache _distributedCache;
+    private readonly IDistributedCache _cache;
+    private readonly IRedisClientsManager _redisClientManager;
 
     public DistributedCacheTests(DistributedCacheFixture fixture)
     {
-        _distributedCache = fixture.DistributedCache;
-        _key += fixture.KeyPostfix;
-        _keyAsync += fixture.KeyPostfix;
+        _cache = fixture.DistributedCache;
+        _redisClientManager = fixture.RedisClientManager;
     }
 
-    [Fact, Priority(1)]
-    public async Task Sets_a_value_with_the_given_key()
+    [Fact]
+    public async Task Cache_with_absolute_expiration()
     {
-        _distributedCache.SetString(_key, _value);
-        await _distributedCache.SetStringAsync(_keyAsync, _value);
+        var key = nameof(Cache_with_absolute_expiration) + "_" + Guid.NewGuid();
+        var keyAsync = nameof(Cache_with_absolute_expiration) + "_async_" + Guid.NewGuid();
+
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpiration = DateTimeOffset.Now.AddSeconds(1)
+        };
+
+        _cache.SetString(key, _value, options);
+        await _cache.SetStringAsync(keyAsync, _value, options);
+        Assert.Equal(_value, _cache.GetString(key));
+        Assert.Equal(_value, await _cache.GetStringAsync(keyAsync));
+
+        await Task.Delay(1010);
+
+        Assert.Null(_cache.GetString(key));
+        Assert.Null(await _cache.GetStringAsync(keyAsync));
     }
 
-    [Fact, Priority(2)]
-    public async Task Gets_a_value_with_the_given_key()
+    [Fact]
+    public async Task Cache_with_absolute_expiration_relative_to_now()
     {
-        Assert.Equal(_value, _distributedCache.GetString(_key));
-        Assert.Equal(_value, await _distributedCache.GetStringAsync(_keyAsync));
+        var key = nameof(Cache_with_absolute_expiration_relative_to_now) + "_" + Guid.NewGuid();
+        var keyAsync = nameof(Cache_with_absolute_expiration_relative_to_now) + "_async_" + Guid.NewGuid();
+
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(1)
+        };
+
+        _cache.SetString(key, _value, options);
+        await _cache.SetStringAsync(keyAsync, _value, options);
+        Assert.Equal(_value, _cache.GetString(key));
+        Assert.Equal(_value, await _cache.GetStringAsync(keyAsync));
+
+        await Task.Delay(1010);
+
+        Assert.Null(_cache.GetString(key));
+        Assert.Null(await _cache.GetStringAsync(keyAsync));
     }
 
-    [Fact, Priority(3)]
-    public async Task Refreshes_a_value_in_the_cache_based_on_its_key()
+    [Fact]
+    public async Task Cache_with_sliding_expiration()
     {
-        _distributedCache.Refresh(_key);
-        await _distributedCache.RefreshAsync(_keyAsync);
+        var key = nameof(Cache_with_sliding_expiration) + "_" + Guid.NewGuid();
+        var keyAsync = nameof(Cache_with_sliding_expiration) + "_async_" + Guid.NewGuid();
+
+        var options = new DistributedCacheEntryOptions
+        {
+            SlidingExpiration = TimeSpan.FromSeconds(2)
+        };
+
+        _cache.SetString(key, _value, options);
+        await _cache.SetStringAsync(keyAsync, _value, options);
+
+        await Task.Delay(500);
+        Assert.Equal(_value, _cache.GetString(key));
+        Assert.Equal(_value, await _cache.GetStringAsync(keyAsync));
+        Assert.True(GetTtl(key) > TimeSpan.FromMilliseconds(1900));
+        Assert.True(await GetTtlAsync(keyAsync) > TimeSpan.FromMilliseconds(1900));
+
+        await Task.Delay(1000);
+        Assert.True(GetTtl(key) <= TimeSpan.FromMilliseconds(1000));
+        Assert.True(await GetTtlAsync(keyAsync) <= TimeSpan.FromMilliseconds(1000));
+
+        _cache.Refresh(key);
+        await _cache.RefreshAsync(keyAsync);
+        Assert.True(GetTtl(key) > TimeSpan.FromMilliseconds(1900));
+        Assert.True(await GetTtlAsync(keyAsync) > TimeSpan.FromMilliseconds(1900));
+
+        await Task.Delay(2010);
+        Assert.Null(_cache.GetString(key));
+        Assert.Null(await _cache.GetStringAsync(keyAsync));
     }
 
-    [Fact, Priority(4)]
-    public async Task Removes_the_value_with_the_given_key()
+    private TimeSpan? GetTtl(string key)
     {
-        _distributedCache.Remove(_key);
-        await _distributedCache.RemoveAsync(_keyAsync);
-        Assert.Null(_distributedCache.Get(_key));
-        Assert.Null(await _distributedCache.GetAsync(_keyAsync));
+        using var client = _redisClientManager.GetClient();
+        return client.GetTimeToLive(key);
+    }
+
+    private async Task<TimeSpan?> GetTtlAsync(string key)
+    {
+        await using var client = await _redisClientManager.GetClientAsync();
+        return await client.GetTimeToLiveAsync(key);
     }
 }

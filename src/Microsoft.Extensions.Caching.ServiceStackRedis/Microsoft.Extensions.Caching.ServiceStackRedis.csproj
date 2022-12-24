@@ -9,6 +9,7 @@
     <PackageProjectUrl>https://github.com/cnblogs/ServiceStackRedisCache</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/cnblogs/ServiceStackRedisCache</RepositoryUrl>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
