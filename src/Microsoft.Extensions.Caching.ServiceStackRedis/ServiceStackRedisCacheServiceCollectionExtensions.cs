@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using ServiceStack.Redis;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -24,34 +25,31 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(setupAction));
             }
 
-            services.AddOptions();
-            services.Configure(setupAction);
-            services.TryAddSingleton<IDistributedCache, ServiceStackRedisCache>();
-
-            return services;
+            return services.AddDistributedServiceStackRedisCache(
+                services => setupAction(services));
         }
 
-#if NET6_0_OR_GREATER
         public static IServiceCollection AddDistributedServiceStackRedisCache(this IServiceCollection services, string configName)
         {
-            var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            return services.AddDistributedServiceStackRedisCache(config.GetSection(configName));
+            return services.AddDistributedServiceStackRedisCache(
+                services => services.AddOptions<ServiceStackRedisCacheOptions>().BindConfiguration(configName));
         }
-#endif
 
         public static IServiceCollection AddDistributedServiceStackRedisCache(this IServiceCollection services, IConfigurationSection section)
+        {
+            return services.AddDistributedServiceStackRedisCache(
+                services => services.Configure<ServiceStackRedisCacheOptions>(section));
+        }
+
+        public static IServiceCollection AddDistributedServiceStackRedisCache(this IServiceCollection services, Action<IServiceCollection> configure)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
 
-            if (section == null)
-            {
-                throw new ArgumentNullException(nameof(section));
-            }
-
-            services.Configure<ServiceStackRedisCacheOptions>(section);
+            services.AddOptions();
+            configure?.Invoke(services);
 
             services.TryAddSingleton<IRedisClientsManager>(provider =>
             {
